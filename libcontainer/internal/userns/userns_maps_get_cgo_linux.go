@@ -3,16 +3,20 @@
 package userns
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"unsafe"
 
-	"github.com/opencontainers/runc/libcontainer/configs"
 	"github.com/sirupsen/logrus"
 )
+
+/*
+#include <stdlib.h>
+extern int spawn_userns_cat(char *userns_path, char *path, int outfd, int errfd);
+*/
+import "C"
 
 // Do something equivalent to nsenter --user=<nsPath> cat <path>, but more
 // efficiently. Returns the contents of the requested file from within the user
