@@ -16,14 +16,17 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const envName = "__RUNC__DUMPNS"
+const (
+	envName = "__RUNC__DUMPNS"
+	sep = "@@@@"
+)
 
 func init() {
 	s := os.Getenv(envName)
 	if len(s) == 0 {
 		return
 	}
-	files := strings.Split(s, "\x00")
+	files := strings.Split(s, sep)
 	if len(files) != 2 {
 		log.Fatalf(envName+": %q, but must be two null-seperated fields", files)
 	}
@@ -68,7 +71,7 @@ func spawnUserNamespaceCat(nsPath, path string) ([]byte, error) {
 	c := exec.Command("/proc/self/exe")
 	c.Stdout, c.Stderr = wtr, errRdr
 
-	c.Env = append(c.Env, envName+"="+nsPath+"\x00"+path)
+	c.Env = append(c.Env, envName+"="+nsPath+sep+path)
 	c.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS,
 	}
